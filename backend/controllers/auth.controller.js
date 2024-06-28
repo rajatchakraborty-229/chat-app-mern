@@ -4,68 +4,76 @@ import generateTokenAndSetCookie from "../utils/generateToken.js";
 
 export const sign = async (req, res) => {
     try {
-        const { fullName, userName, password, confirmPassword, gender } = req.body;
-        
+        const { fullname, username, password, confirmPassword, gender } = req.body;
+
+        console.log("Received signup data:", { fullname, username, password, confirmPassword, gender });
+
         if (password !== confirmPassword) {
             return res.status(400).json({ error: "Passwords don't match" });
         }
 
-        const user = await User.findOne({ userName });
+        const user = await User.findOne({ username });
         if (user) {
             return res.status(400).json({ error: "User already exists" });
         }
 
-        const boyPic = `https://avatar.iran.liara.run/public/boy?username=${userName}`;
-        const girlPic = `https://avatar.iran.liara.run/public/girl?username=${userName}`;
+        const boyPic = `https://avatar.iran.liara.run/public/boy?username=${username}`;
+        const girlPic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new User({
-            fullName,
-            userName,
+            fullname,
+            username,
             password: hashedPassword,
             gender,
-            profilePic: gender === "male" ? boyPic : girlPic
+            profilepic: gender === "Male" ? boyPic : girlPic
         });
 
-        if(newUser){
-             generateTokenAndSetCookie(newUser._id,res)
+        if (newUser) {
+            generateTokenAndSetCookie(newUser._id, res);
             await newUser.save();
             res.status(201).json({
                 _id: newUser._id,
-                fullName: newUser.fullName,
-                userName: newUser.userName,
-                profilePic: newUser.profilePic
+                fullname: newUser.fullname,
+                username: newUser.username,
+                profilepic: newUser.profilepic
             });
-        }else{
-            res.status(400).json({error:"Invalid user data"})
+        } else {
+            res.status(400).json({ error: "Invalid user data" });
         }
-
-    
-
     } catch (e) {
+        console.error(e); // Log the error for debugging purposes
         res.status(500).json({ error: "Internal server error" });
     }
 };
 
+
 export const login = async (req, res) => {
-    try{
-        const {userName,password}=req.body;
-        const user=await User.findOne({userName});
-        const isPasswordCorrect=await bcrypt.compare(password,user?.password||"");
-        if(!user||!isPasswordCorrect){
-            return res.status(400).json({error:"Invalid username or password"})
+    try {
+        const { username, password } = req.body;
+        const user = await User.findOne({ username });
+        
+        if (!user) {
+            return res.status(400).json({ error: "Invalid username or password" });
         }
-        generateTokenAndSetCookie(user._id,res);
+
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        
+        if (!isPasswordCorrect) {
+            return res.status(400).json({ error: "Invalid username or password" });
+        }
+
+        generateTokenAndSetCookie(user._id, res);
 
         res.status(200).json({
             _id: user._id,
-            fullName: user.fullName,
-            userName: user.userName,
-            profilePic: user.profilePic
-        })
-
-    }catch(e){
+            fullname: user.fullname,
+            username: user.username,
+            profilepic: user.profilepic
+        });
+    } catch (e) {
+        console.error(e); // Log the error for debugging purposes
         res.status(500).json({ error: "Internal server error" });
     }
 };
