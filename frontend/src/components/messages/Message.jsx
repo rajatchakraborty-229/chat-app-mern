@@ -17,7 +17,7 @@ function Message({ message }) {
   const profilePicElement = profilePic ? (
     <img src={profilePic} alt='Profile' className='w-full h-full object-cover' />
   ) : (
-    <div className='flex items-center justify-center w-full h-full bg-gray-500 text-white text-xl'>
+    <div className='flex items-center justify-center w-full h-full bg-purple-500 text-white text-xl'>
       {fromMe ? authUser.fullname[0].toUpperCase() : selectedConversation?.fullname[0].toUpperCase()}
     </div>
   );
