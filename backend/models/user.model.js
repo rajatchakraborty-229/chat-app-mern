@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
     fullname: {
@@ -18,11 +18,15 @@ const userSchema = new mongoose.Schema({
     gender: {
         type: String,
         required: true,
-        enum: ['Male', 'Female',]
+        enum: ['Male', 'Female']
     },
     profilepic: {
         type: String,
-        default: ""
+        default: ''
+    },
+    cloudinary_id: {
+        type: String,
+        default: ''
     }
 }, { timestamps: true });
 

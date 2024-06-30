@@ -1,5 +1,7 @@
 import Conversation from "../models/coverstation.model.js";
 import Message from "../models/message.model.js";
+import { getReceiverSocketId } from "../socket/socket.js";
+import { io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
     try {
@@ -32,12 +34,16 @@ export const sendMessage = async (req, res) => {
         // await newMessage.save()
 
         await Promise.all([conversation.save(),newMessage.save()]);
-        console.log("sendmmmmmmmmmmmmmm route hit. Conversation:", conversation);
-
+        // console.log("sendmmmmmmmmmmmmmm route hit. Conversation:", conversation);
+        const receiverSocketId=getReceiverSocketId(receiverId)
+        if(receiverSocketId){
+            io.to(receiverSocketId).emit("newMessage",newMessage)
+        }
+        
         res.status(201).json(newMessage)
 
     } catch (error) {
-        console.log("error in message_controller", error.message);
+        // console.log("error in message_controller", error.message);
         res.status(500).json({ error: "Internal server errror" })
     }
 }
@@ -53,7 +59,7 @@ export const getMessages = async (req, res) => {
             }
         }).populate("messages");
 
-        console.log("getMessages route hit. Conversation:", conversation);
+        // console.log("getMessages route hit. Conversation:", conversation);
 
         if (!conversation) {
             return res.status(404).json({ error: "Conversation not found" });
@@ -61,7 +67,7 @@ export const getMessages = async (req, res) => {
 
         res.status(200).json(conversation.messages);
     } catch (error) {
-        console.log("Error in getMessages controller:", error.message);
+        // console.log("Error in getMessages controller:", error.message);
         res.status(500).json({ error: "Internal server error" });
     }
 };

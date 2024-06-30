@@ -6,7 +6,7 @@ function SearchInput() {
   const { searchQuery, setSearchQuery } = useConversation();
 
   return (
-    <div className='flex items-center gap-2'>
+    <div className='flex items-center gap-2 mt-2'>
       <input 
         type='text' 
         placeholder='Search...' 
